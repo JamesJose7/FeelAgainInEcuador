@@ -1,11 +1,11 @@
 package com.jose.feelagaininecuador;
 
 import android.content.Context;
+import android.graphics.Bitmap;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
-import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
@@ -15,10 +15,16 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.ViewGroup;
 import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.nostra13.universalimageloader.core.DisplayImageOptions;
+import com.nostra13.universalimageloader.core.ImageLoader;
+import com.nostra13.universalimageloader.core.ImageLoaderConfiguration;
+import com.nostra13.universalimageloader.core.assist.FailReason;
+import com.nostra13.universalimageloader.core.listener.SimpleImageLoadingListener;
 import com.squareup.okhttp.Call;
 import com.squareup.okhttp.Callback;
 import com.squareup.okhttp.OkHttpClient;
@@ -35,7 +41,7 @@ import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
 
-    protected TextView content;
+    protected TextView queueTime;
     protected EditText searchBar;
     protected ProgressBar mProgressBar;
 
@@ -49,7 +55,13 @@ public class MainActivity extends AppCompatActivity {
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
-        //content = (TextView) findViewById(R.id.content);
+        //Image Loader
+        ImageLoaderConfiguration config = new ImageLoaderConfiguration.Builder(this)
+                .build();
+
+        ImageLoader.getInstance().init(config);
+
+        queueTime = (TextView) findViewById(R.id.queue_time);
         searchBar = (EditText) findViewById(R.id.search_bar);
         mProgressBar = (ProgressBar) findViewById(R.id.progress_bar);
 
@@ -65,6 +77,7 @@ public class MainActivity extends AppCompatActivity {
                 String query = "";
                 query = searchBar.getText().toString();
 
+                // http://j4loxa.com/serendipity/sr/browse?q=quito&wt=json
                 String url = "http://j4loxa.com/serendipity/sr/browse?q=" + query + "&wt=json";
 
                 getContents(url);
@@ -112,13 +125,11 @@ public class MainActivity extends AppCompatActivity {
                         //Diplay collected data on logcat
                         Log.v("JSON", jsonData);
                         if (response.isSuccessful()) {
-                            //mElementData = parseData(jsonData, mClase, mElemento);
                             parseData(jsonData);
                             runOnUiThread(new Runnable() {
                                 @Override
                                 public void run() {
                                     updateDisplay();
-                                    //content.setText(jsonData);
                                 }
                             });
                         } else {
@@ -137,17 +148,26 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void updateDisplay() {
+        //Queue time message
+        queueTime.setText(DocData.getQueueTime());
 
         int counter = 0;
+
+        ViewGroup insertPoint = (ViewGroup) findViewById(R.id.items_list);
+        insertPoint.removeAllViews();
 
         for (DocData doc : mDocs) {
             LayoutInflater vi = (LayoutInflater) getApplicationContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
             View view = vi.inflate(R.layout.data_template, null);
 
-            TextView descriptionView = (TextView) view.findViewById(R.id.test);
+            TextView titleView = (TextView) view.findViewById(R.id.title);
+            ImageView imageView = (ImageView) view.findViewById(R.id.image_view);
+            TextView descriptionView = (TextView) view.findViewById(R.id.description);
+
+            titleView.setText(doc.getTitle());
+            displayImage(doc.getImageUri(), imageView);
             descriptionView.setText(doc.getDescription());
 
-            ViewGroup insertPoint = (ViewGroup) findViewById(R.id.items_list);
             insertPoint.addView(view, counter, new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
             counter++;
         }
@@ -166,9 +186,22 @@ public class MainActivity extends AppCompatActivity {
 
             JSONObject element = docs.getJSONObject(i);
 
+            data.setTitle(element.getString("title"));
             data.setDescription(element.getString("description"));
+            data.setImageUri(element.getString("image"));
             mDocs.add(data);
         }
+
+        //Queue time message
+        String queueTime;
+
+        JSONObject responseHeader = jsonObject.getJSONObject("responseHeader");
+
+        queueTime = String.format("Found %d results in %d ms.",
+                responseObj.getInt("numFound"),
+                responseHeader.getInt("QTime"));
+
+        DocData.setQueueTime(queueTime);
     }
 
     public void toggleRefresh() {
@@ -211,5 +244,41 @@ public class MainActivity extends AppCompatActivity {
         }
 
         return super.onOptionsItemSelected(item);
+    }
+
+    public void displayImage(String imageUri, ImageView imageView) {
+        final ProgressBar imageProgressBar = (ProgressBar) findViewById(R.id.progress_bar);
+
+        ImageLoader imageLoader = ImageLoader.getInstance();
+
+
+        DisplayImageOptions options = new DisplayImageOptions.Builder().cacheInMemory(true)
+                .showImageOnFail(getResources().getDrawable(R.drawable.image_missing))
+                .build();
+
+
+        //download and display image from url
+        //imageLoader.displayImage(imageUri, imageView, options);
+
+        imageLoader.displayImage(imageUri, imageView, options, new SimpleImageLoadingListener() {
+            @Override
+            public void onLoadingStarted(String imageUri, View view) {
+                imageProgressBar.setVisibility(View.VISIBLE);
+            }
+
+            @Override
+            public void onLoadingFailed(String imageUri, View view, FailReason failReason) {
+                imageProgressBar.setVisibility(View.GONE);
+
+            }
+
+            @Override
+            public void onLoadingComplete(String imageUri, View view, Bitmap loadedImage) {
+                imageProgressBar.setVisibility(View.GONE);
+            }
+        });
+
+
+
     }
 }
