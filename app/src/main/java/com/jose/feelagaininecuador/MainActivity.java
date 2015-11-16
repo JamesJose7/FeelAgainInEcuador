@@ -3,6 +3,7 @@ package com.jose.feelagaininecuador;
 import android.app.ActionBar;
 import android.content.Context;
 import android.graphics.Bitmap;
+import android.graphics.Point;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.Bundle;
@@ -162,7 +163,11 @@ public class MainActivity extends AppCompatActivity {
         int column = 2;
         int rows = total / column;
 
-        //ViewGroup insertPoint = (ViewGroup) findViewById(R.id.items_list);
+        Point size = new Point();
+        getWindowManager().getDefaultDisplay().getSize(size);
+        int screenWidth = size.x;
+        int halfScreenWidth = (int) (screenWidth * 0.5 - 8);
+
         //ViewGroup insertPoint = (ViewGroup) findViewById(R.id.items_grid);
         GridLayout insertPoint = (GridLayout) findViewById(R.id.items_grid);
         insertPoint.removeAllViews();
@@ -186,15 +191,16 @@ public class MainActivity extends AppCompatActivity {
             //TEST
             GridLayout.LayoutParams params = new GridLayout.LayoutParams();
             params.height = GridLayout.LayoutParams.WRAP_CONTENT;
-            params.width = GridLayout.LayoutParams.MATCH_PARENT;
-            params.rightMargin = 5;
+            params.width = halfScreenWidth;
+            params.rightMargin = 2;
+            params.leftMargin = 2;
             params.topMargin = 5;
             params.setGravity(Gravity.CENTER);
             params.columnSpec = GridLayout.spec(col);
             params.rowSpec = GridLayout.spec(row);
             view.setLayoutParams(params);
 
-            insertPoint.addView(view, counter);
+            insertPoint.addView(view);
 
             //insertPoint.addView(view, counter, new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
             //insertPoint.addView(view, counter, new GridLayout.LayoutParams(GridLayout.spec(row), GridLayout.spec(col)));
