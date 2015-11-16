@@ -48,6 +48,7 @@ public class MainActivity extends AppCompatActivity {
     protected TextView queueTime;
     protected EditText searchBar;
     protected ProgressBar mProgressBar;
+    protected ImageView mSearchButton;
 
     private DocData mDocData;
     private List<DocData> mDocs;
@@ -62,22 +63,18 @@ public class MainActivity extends AppCompatActivity {
         //Image Loader
         ImageLoaderConfiguration config = new ImageLoaderConfiguration.Builder(this)
                 .build();
-
         ImageLoader.getInstance().init(config);
 
         queueTime = (TextView) findViewById(R.id.queue_time);
         searchBar = (EditText) findViewById(R.id.search_bar);
         mProgressBar = (ProgressBar) findViewById(R.id.progress_bar);
+        mSearchButton = (ImageView) findViewById(R.id.search_button);
 
         toggleRefresh();
 
-        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
-        fab.setOnClickListener(new View.OnClickListener() {
+        mSearchButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                /*Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-                        .setAction("Action", null).show();*/
-
                 String query = "";
                 query = searchBar.getText().toString();
 
@@ -85,6 +82,18 @@ public class MainActivity extends AppCompatActivity {
                 String url = "http://j4loxa.com/serendipity/sr/browse?q=" + query + "&wt=json";
 
                 getContents(url);
+            }
+        });
+
+        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
+
+        fab.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                /*Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
+                        .setAction("Action", null).show();*/
+
+
             }
         });
     }
