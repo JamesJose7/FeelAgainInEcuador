@@ -37,15 +37,24 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_marginTop="15dp"
-        android:layout_below="@id/queue_time">
+        android:layout_below="@id/queue_time"
+        >
 
-        <LinearLayout
+        <!--<LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:id="@+id/items_list"
-            android:orientation="vertical"/>
+            android:orientation="vertical"/>-->
+
+        <GridLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:id="@+id/items_grid"
+            />
+
 
     </ScrollView>
+
 
 
 

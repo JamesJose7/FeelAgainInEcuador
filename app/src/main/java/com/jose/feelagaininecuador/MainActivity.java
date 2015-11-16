@@ -1,5 +1,6 @@
 package com.jose.feelagaininecuador;
 
+import android.app.ActionBar;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.net.ConnectivityManager;
@@ -9,12 +10,14 @@ import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
+import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.ViewGroup;
 import android.widget.EditText;
+import android.widget.GridLayout;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
@@ -152,9 +155,20 @@ public class MainActivity extends AppCompatActivity {
         queueTime.setText(DocData.getQueueTime());
 
         int counter = 0;
+        int row = 0;
+        int col = 0;
 
-        ViewGroup insertPoint = (ViewGroup) findViewById(R.id.items_list);
+        int total = mDocs.size();
+        int column = 2;
+        int rows = total / column;
+
+        //ViewGroup insertPoint = (ViewGroup) findViewById(R.id.items_list);
+        //ViewGroup insertPoint = (ViewGroup) findViewById(R.id.items_grid);
+        GridLayout insertPoint = (GridLayout) findViewById(R.id.items_grid);
         insertPoint.removeAllViews();
+
+        insertPoint.setColumnCount(column);
+        insertPoint.setRowCount(rows + 1);
 
         for (DocData doc : mDocs) {
             LayoutInflater vi = (LayoutInflater) getApplicationContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
@@ -168,8 +182,34 @@ public class MainActivity extends AppCompatActivity {
             displayImage(doc.getImageUri(), imageView);
             descriptionView.setText(doc.getDescription());
 
-            insertPoint.addView(view, counter, new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
+
+            //TEST
+            GridLayout.LayoutParams params = new GridLayout.LayoutParams();
+            params.height = GridLayout.LayoutParams.WRAP_CONTENT;
+            params.width = GridLayout.LayoutParams.MATCH_PARENT;
+            params.rightMargin = 5;
+            params.topMargin = 5;
+            params.setGravity(Gravity.CENTER);
+            params.columnSpec = GridLayout.spec(col);
+            params.rowSpec = GridLayout.spec(row);
+            view.setLayoutParams(params);
+
+            insertPoint.addView(view, counter);
+
+            //insertPoint.addView(view, counter, new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
+            //insertPoint.addView(view, counter, new GridLayout.LayoutParams(GridLayout.spec(row), GridLayout.spec(col)));
+
             counter++;
+
+            //rows and columns
+            if (col == 1) {
+                col = 0;
+                row++;
+            } else {
+                col++;
+            }
+
+
         }
     }
 
