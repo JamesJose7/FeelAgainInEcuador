@@ -219,10 +219,13 @@ public class BubbleDisplay extends AppCompatActivity {
             bubbleImage.getLayoutParams().height = (thirdScreenWidth - 12);
             bubbleImage.getLayoutParams().width = (thirdScreenWidth - 12);
 
-            if (doc.getImageUri().length() > 1)
+
+            displayImage(doc.getImageUri(), bubbleImage);
+
+            /*if (doc.getImageUri().length() > 1)
                 displayImage(doc.getImageUri(), bubbleImage);
             else
-                continue;
+                continue;*/
 
             //TEST
             GridLayout.LayoutParams params = new GridLayout.LayoutParams();
@@ -280,7 +283,10 @@ public class BubbleDisplay extends AppCompatActivity {
             data.setTitle(element.getString("title"));
             data.setDescription(element.getString("description"));
             data.setImageUri(element.getString("image"));
-            mDocs.add(data);
+
+            if (data.getImageUri().length() > 1) {
+                mDocs.add(data);
+            }
         }
 
         //Queue time message
