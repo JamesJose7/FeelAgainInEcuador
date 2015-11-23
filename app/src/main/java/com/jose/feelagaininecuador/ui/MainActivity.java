@@ -47,6 +47,9 @@ import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
 
+    public static final String QUERY_MAIN = "Query main";
+    public static boolean wasSearchedMain = false;
+
     protected TextView queueTime;
     protected EditText searchBar;
     protected ProgressBar mProgressBar;
@@ -54,8 +57,9 @@ public class MainActivity extends AppCompatActivity {
 
     protected FloatingActionButton fab;
 
-    private DocData mDocData;
     private List<DocData> mDocs;
+
+    private String mQueryString;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -76,14 +80,25 @@ public class MainActivity extends AppCompatActivity {
 
         toggleRefresh();
 
+        //Get last query
+        Intent intent = getIntent();
+        if (intent.hasExtra(BubbleDisplay.QUERY_BUBBLE) && wasSearchedMain) {
+            String query = intent.getStringExtra(BubbleDisplay.QUERY_BUBBLE);
+            String url = "http://j4loxa.com/serendipity/sr/browse?q=" + query + "&wt=json";
+            searchBar.setText(query);
+            getQuery();
+            getContents(url);
+        }
+
         mSearchButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                String query = "";
-                query = searchBar.getText().toString();
+
+                getQuery();
+                wasSearchedMain = true;
 
                 // http://j4loxa.com/serendipity/sr/browse?q=quito&wt=json
-                String url = "http://j4loxa.com/serendipity/sr/browse?q=" + query + "&wt=json";
+                String url = "http://j4loxa.com/serendipity/sr/browse?q=" + mQueryString + "&wt=json";
 
                 getContents(url);
             }
@@ -91,7 +106,6 @@ public class MainActivity extends AppCompatActivity {
 
         fab = (FloatingActionButton) findViewById(R.id.fab);
 
-        //changeIcon(getResources().getDrawable(R.drawable.ic_view_module_white_24dp), fab);
 
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -100,13 +114,14 @@ public class MainActivity extends AppCompatActivity {
                 /*Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
                         .setAction("Action", null).show();*/
                 Intent intent = new Intent(MainActivity.this, BubbleDisplay.class);
+                intent.putExtra(QUERY_MAIN, mQueryString);
                 startActivity(intent);
             }
         });
     }
 
-    public void changeIcon(Drawable drawable, FloatingActionButton fab) {
-        fab.setImageDrawable(drawable);
+    private void getQuery() {
+        mQueryString = searchBar.getText().toString();
     }
 
     public void getContents(String jsonUrl) {

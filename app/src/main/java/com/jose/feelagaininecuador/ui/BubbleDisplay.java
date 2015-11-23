@@ -49,6 +49,9 @@ import java.util.List;
 
 public class BubbleDisplay extends AppCompatActivity {
 
+    public static final String QUERY_BUBBLE = "Query Bubble";
+    public static boolean wasSearched = false;
+
     protected TextView queueTime;
     protected EditText searchBar;
     protected FloatingActionButton fab;
@@ -58,6 +61,8 @@ public class BubbleDisplay extends AppCompatActivity {
     protected ProgressBar mBubblePB;
 
     private List<DocData> mDocs;
+
+    private String mQueryString;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -78,14 +83,24 @@ public class BubbleDisplay extends AppCompatActivity {
 
         toggleRefresh();
 
+        Intent intent = getIntent();
+        if (intent.hasExtra(MainActivity.QUERY_MAIN) && MainActivity.wasSearchedMain) {
+            String query = intent.getStringExtra(MainActivity.QUERY_MAIN);
+            String url = "http://j4loxa.com/serendipity/sr/browse?q=" + query + "&wt=json";
+            searchBar.setText(query);
+            getQuery();
+            getContents(url);
+        }
+
         mSearchButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                String query = "";
-                query = searchBar.getText().toString();
+
+                getQuery();
+                MainActivity.wasSearchedMain = true;
 
                 // http://j4loxa.com/serendipity/sr/browse?q=quito&wt=json
-                String url = "http://j4loxa.com/serendipity/sr/browse?q=" + query + "&wt=json&rows=100";
+                String url = "http://j4loxa.com/serendipity/sr/browse?q=" + mQueryString + "&wt=json&rows=100";
 
                 getContents(url);
             }
@@ -98,14 +113,12 @@ public class BubbleDisplay extends AppCompatActivity {
                 /*Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
                         .setAction("Action", null).show();*/
                 Intent intent = new Intent(BubbleDisplay.this, MainActivity.class);
+                intent.putExtra(QUERY_BUBBLE, mQueryString);
                 startActivity(intent);
             }
         });
     }
 
-    public void changeIcon(Drawable drawable, FloatingActionButton fab) {
-        fab.setImageDrawable(drawable);
-    }
 
     public void getContents(String jsonUrl) {
 
@@ -167,6 +180,10 @@ public class BubbleDisplay extends AppCompatActivity {
             Toast.makeText(this, "Network is unavailable!", Toast.LENGTH_LONG).show();
             //alertUserAboutError();
         }
+    }
+
+    private void getQuery() {
+        mQueryString = searchBar.getText().toString();
     }
 
     private void updateDisplay() {
