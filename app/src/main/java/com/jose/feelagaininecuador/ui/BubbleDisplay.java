@@ -1,22 +1,23 @@
-package com.jose.feelagaininecuador;
+package com.jose.feelagaininecuador.ui;
 
-import android.app.ActionBar;
 import android.content.Context;
+import android.content.Intent;
+import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.Point;
+import android.graphics.drawable.Drawable;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
+import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.util.AttributeSet;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
-import android.view.Menu;
-import android.view.MenuItem;
-import android.view.ViewGroup;
 import android.widget.EditText;
 import android.widget.GridLayout;
 import android.widget.ImageView;
@@ -24,11 +25,14 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.jose.feelagaininecuador.R;
+import com.jose.feelagaininecuador.model.DocData;
 import com.nostra13.universalimageloader.core.DisplayImageOptions;
 import com.nostra13.universalimageloader.core.ImageLoader;
 import com.nostra13.universalimageloader.core.ImageLoaderConfiguration;
 import com.nostra13.universalimageloader.core.assist.FailReason;
 import com.nostra13.universalimageloader.core.listener.SimpleImageLoadingListener;
+import com.pkmmte.view.CircularImageView;
 import com.squareup.okhttp.Call;
 import com.squareup.okhttp.Callback;
 import com.squareup.okhttp.OkHttpClient;
@@ -43,20 +47,22 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-public class MainActivity extends AppCompatActivity {
+public class BubbleDisplay extends AppCompatActivity {
 
     protected TextView queueTime;
     protected EditText searchBar;
-    protected ProgressBar mProgressBar;
+    protected FloatingActionButton fab;
     protected ImageView mSearchButton;
 
-    private DocData mDocData;
+    protected ProgressBar mProgressBar;
+    protected ProgressBar mBubblePB;
+
     private List<DocData> mDocs;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
+        setContentView(R.layout.activity_bubble_display);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
@@ -79,23 +85,26 @@ public class MainActivity extends AppCompatActivity {
                 query = searchBar.getText().toString();
 
                 // http://j4loxa.com/serendipity/sr/browse?q=quito&wt=json
-                String url = "http://j4loxa.com/serendipity/sr/browse?q=" + query + "&wt=json";
+                String url = "http://j4loxa.com/serendipity/sr/browse?q=" + query + "&wt=json&rows=100";
 
                 getContents(url);
             }
         });
 
-        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
-
+        fab = (FloatingActionButton) findViewById(R.id.fab);
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 /*Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
                         .setAction("Action", null).show();*/
-
-
+                Intent intent = new Intent(BubbleDisplay.this, MainActivity.class);
+                startActivity(intent);
             }
         });
+    }
+
+    public void changeIcon(Drawable drawable, FloatingActionButton fab) {
+        fab.setImageDrawable(drawable);
     }
 
     public void getContents(String jsonUrl) {
@@ -169,16 +178,15 @@ public class MainActivity extends AppCompatActivity {
         int col = 0;
 
         int total = mDocs.size();
-        int column = 2;
+        int column = 3;
         int rows = total / column;
 
         Point size = new Point();
         getWindowManager().getDefaultDisplay().getSize(size);
         int screenWidth = size.x;
-        int halfScreenWidth = (int) (screenWidth * 0.5 - 8);
+        int thirdScreenWidth = (int) (screenWidth * 0.33);
 
-        //ViewGroup insertPoint = (ViewGroup) findViewById(R.id.items_grid);
-        GridLayout insertPoint = (GridLayout) findViewById(R.id.items_grid);
+        GridLayout insertPoint = (GridLayout) findViewById(R.id.bubbleGrid);
         insertPoint.removeAllViews();
 
         insertPoint.setColumnCount(column);
@@ -186,24 +194,38 @@ public class MainActivity extends AppCompatActivity {
 
         for (DocData doc : mDocs) {
             LayoutInflater vi = (LayoutInflater) getApplicationContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-            View view = vi.inflate(R.layout.data_template, null);
+            View view = vi.inflate(R.layout.bubble_template, null);
 
-            TextView titleView = (TextView) view.findViewById(R.id.title);
-            ImageView imageView = (ImageView) view.findViewById(R.id.image_view);
-            TextView descriptionView = (TextView) view.findViewById(R.id.description);
+            CircularImageView bubbleImage = (CircularImageView) view.findViewById(R.id.bubble_image);
+            mBubblePB = (ProgressBar) view.findViewById(R.id.bubble_pb);
 
-            titleView.setText(doc.getTitle());
-            displayImage(doc.getImageUri(), imageView);
-            descriptionView.setText(doc.getDescription());
+            bubbleImage.getLayoutParams().height = (thirdScreenWidth - 12);
+            bubbleImage.getLayoutParams().width = (thirdScreenWidth - 12);
 
+            if (doc.getImageUri().length() > 1)
+                displayImage(doc.getImageUri(), bubbleImage);
+            else
+                continue;
 
             //TEST
             GridLayout.LayoutParams params = new GridLayout.LayoutParams();
             params.height = GridLayout.LayoutParams.WRAP_CONTENT;
-            params.width = halfScreenWidth;
-            params.rightMargin = 2;
-            params.leftMargin = 2;
-            params.topMargin = 5;
+            params.width = thirdScreenWidth;
+            switch (col) {
+                case 1:
+                    params.leftMargin = 6;
+                    break;
+                case 2:
+                    params.leftMargin = 6;
+                    params.rightMargin = 6;
+                    break;
+                case 3:
+                    params.rightMargin = 6;
+                    break;
+                default:
+            }
+            params.topMargin = 3;
+            params.bottomMargin = 3;
             params.setGravity(Gravity.CENTER);
             params.columnSpec = GridLayout.spec(col);
             params.rowSpec = GridLayout.spec(row);
@@ -211,13 +233,10 @@ public class MainActivity extends AppCompatActivity {
 
             insertPoint.addView(view);
 
-            //insertPoint.addView(view, counter, new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
-            //insertPoint.addView(view, counter, new GridLayout.LayoutParams(GridLayout.spec(row), GridLayout.spec(col)));
-
             counter++;
 
             //rows and columns
-            if (col == 1) {
+            if (col == 2) {
                 col = 0;
                 row++;
             } else {
@@ -279,30 +298,9 @@ public class MainActivity extends AppCompatActivity {
         return isAvailable;
     }
 
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.menu_main, menu);
-        return true;
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        // Handle action bar item clicks here. The action bar will
-        // automatically handle clicks on the Home/Up button, so long
-        // as you specify a parent activity in AndroidManifest.xml.
-        int id = item.getItemId();
-
-        //noinspection SimplifiableIfStatement
-        if (id == R.id.action_settings) {
-            return true;
-        }
-
-        return super.onOptionsItemSelected(item);
-    }
 
     public void displayImage(String imageUri, ImageView imageView) {
-        final ProgressBar imageProgressBar = (ProgressBar) findViewById(R.id.progress_bar);
+        final ProgressBar imageProgressBar = mBubblePB;
 
         ImageLoader imageLoader = ImageLoader.getInstance();
 

@@ -1,12 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     app:layout_behavior="@string/appbar_scrolling_view_behavior"
-    tools:context=".ui.MainActivity"
-    tools:showIn="@layout/activity_main">
+    tools:context="com.jose.feelagaininecuador.ui.BubbleDisplay"
+    tools:showIn="@layout/activity_bubble_display">
 
     <ProgressBar
         android:layout_width="wrap_content"
@@ -52,25 +53,20 @@
         android:layout_below="@id/search_container"
         android:id="@+id/queue_time" />
 
+
     <ScrollView
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
+        android:layout_height="wrap_content"
         android:layout_marginTop="10dp"
         android:layout_below="@id/queue_time"
         >
 
-        <!--<LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:id="@+id/items_list"
-            android:orientation="vertical"/>-->
-
         <GridLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:id="@+id/items_grid"
-            />
-
+            android:id="@+id/bubbleGrid"
+            android:layout_gravity="center_horizontal"
+        />
 
     </ScrollView>
 

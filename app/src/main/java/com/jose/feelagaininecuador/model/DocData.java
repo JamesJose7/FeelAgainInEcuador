@@ -1,4 +1,4 @@
-package com.jose.feelagaininecuador;
+package com.jose.feelagaininecuador.model;
 
 /**
  * Created by Jose on 11/12/2015.
