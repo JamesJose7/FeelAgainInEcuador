@@ -19,6 +19,8 @@
         app:border="true"
         app:border_color="#EEE"
         app:border_width="4dp"
-        app:shadow="true"/>
+        app:shadow="true"
+        android:onClick="handleClick"/>
+
 
 </RelativeLayout>

@@ -84,7 +84,7 @@ public class MainActivity extends AppCompatActivity {
         Intent intent = getIntent();
         if (intent.hasExtra(BubbleDisplay.QUERY_BUBBLE) && wasSearchedMain) {
             String query = intent.getStringExtra(BubbleDisplay.QUERY_BUBBLE);
-            String url = "http://j4loxa.com/serendipity/sr/browse?q=" + query + "&wt=json";
+            String url = "http://j4loxa.com/serendipity/sr/browse?q=" + query + "&wt=json&rows=100";
             searchBar.setText(query);
             getQuery();
             getContents(url);
@@ -98,7 +98,7 @@ public class MainActivity extends AppCompatActivity {
                 wasSearchedMain = true;
 
                 // http://j4loxa.com/serendipity/sr/browse?q=quito&wt=json
-                String url = "http://j4loxa.com/serendipity/sr/browse?q=" + mQueryString + "&wt=json";
+                String url = "http://j4loxa.com/serendipity/sr/browse?q=" + mQueryString + "&wt=json&rows=100";
 
                 getContents(url);
             }

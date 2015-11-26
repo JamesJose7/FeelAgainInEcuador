@@ -2,10 +2,9 @@ package com.jose.feelagaininecuador.ui;
 
 import android.content.Context;
 import android.content.Intent;
-import android.content.res.Resources;
 import android.graphics.Bitmap;
+import android.graphics.Color;
 import android.graphics.Point;
-import android.graphics.drawable.Drawable;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.Bundle;
@@ -13,10 +12,10 @@ import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
-import android.util.AttributeSet;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.LayoutInflater;
+import android.view.MotionEvent;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.GridLayout;
@@ -26,6 +25,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.jose.feelagaininecuador.R;
+import com.jose.feelagaininecuador.alert_dialogs.AlertDialogFragment;
 import com.jose.feelagaininecuador.model.DocData;
 import com.nostra13.universalimageloader.core.DisplayImageOptions;
 import com.nostra13.universalimageloader.core.ImageLoader;
@@ -46,11 +46,16 @@ import org.json.JSONObject;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 
 public class BubbleDisplay extends AppCompatActivity {
 
+    private static final ScheduledExecutorService worker =
+            Executors.newSingleThreadScheduledExecutor();
+
     public static final String QUERY_BUBBLE = "Query Bubble";
-    public static boolean wasSearched = false;
 
     protected TextView queueTime;
     protected EditText searchBar;
@@ -86,7 +91,7 @@ public class BubbleDisplay extends AppCompatActivity {
         Intent intent = getIntent();
         if (intent.hasExtra(MainActivity.QUERY_MAIN) && MainActivity.wasSearchedMain) {
             String query = intent.getStringExtra(MainActivity.QUERY_MAIN);
-            String url = "http://j4loxa.com/serendipity/sr/browse?q=" + query + "&wt=json";
+            String url = "http://j4loxa.com/serendipity/sr/browse?q=" + query + "&wt=json&rows=100";
             searchBar.setText(query);
             getQuery();
             getContents(url);
@@ -143,7 +148,7 @@ public class BubbleDisplay extends AppCompatActivity {
                         }
                     });
                     //Alert user about error
-                    //alertUserAboutError();
+                    alertUserAboutError();
                 }
 
                 @Override
@@ -170,16 +175,20 @@ public class BubbleDisplay extends AppCompatActivity {
                         } else {
                             //alertUserAboutError();
                         }
-                    }
-                    catch (IOException | JSONException e) {
+                    } catch (IOException | JSONException e) {
                         Log.e("ERROR", "Exception caught: ", e);
                     }
                 }
             });
         } else {
             Toast.makeText(this, "Network is unavailable!", Toast.LENGTH_LONG).show();
-            //alertUserAboutError();
+            alertUserAboutError();
         }
+    }
+
+    private void alertUserAboutError() {
+        AlertDialogFragment dialog = new AlertDialogFragment();
+        dialog.show(getFragmentManager(), "error_dialog");
     }
 
     private void getQuery() {
@@ -213,19 +222,38 @@ public class BubbleDisplay extends AppCompatActivity {
             LayoutInflater vi = (LayoutInflater) getApplicationContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
             View view = vi.inflate(R.layout.bubble_template, null);
 
-            CircularImageView bubbleImage = (CircularImageView) view.findViewById(R.id.bubble_image);
+            final CircularImageView bubbleImage = (CircularImageView) view.findViewById(R.id.bubble_image);
             mBubblePB = (ProgressBar) view.findViewById(R.id.bubble_pb);
 
             bubbleImage.getLayoutParams().height = (thirdScreenWidth - 12);
             bubbleImage.getLayoutParams().width = (thirdScreenWidth - 12);
 
+            final String hashTags = getDocHashTags(doc);
+
+            bubbleImage.setOnTouchListener(new View.OnTouchListener() {
+
+                @Override
+                public boolean onTouch(View v, MotionEvent event) {
+                    if (event.getAction() == MotionEvent.ACTION_DOWN) {
+                        bubbleImage.setBorderColor(Color.parseColor("#4CAF50"));
+                        Toast.makeText(BubbleDisplay.this, hashTags, Toast.LENGTH_LONG).show();
+
+                        Runnable colorTask = new Runnable() {
+                            @Override
+                            public void run() {
+                                bubbleImage.setBorderColor(Color.WHITE);
+                            }
+                        };
+                        worker.schedule(colorTask, 500, TimeUnit.MILLISECONDS);
+                    }
+                    if (event.getAction() == MotionEvent.ACTION_UP) {
+                        bubbleImage.setBorderColor(Color.WHITE);
+                    }
+                    return true;
+                }
+            });
 
             displayImage(doc.getImageUri(), bubbleImage);
-
-            /*if (doc.getImageUri().length() > 1)
-                displayImage(doc.getImageUri(), bubbleImage);
-            else
-                continue;*/
 
             //TEST
             GridLayout.LayoutParams params = new GridLayout.LayoutParams();
@@ -267,6 +295,16 @@ public class BubbleDisplay extends AppCompatActivity {
         }
     }
 
+
+    private String getDocHashTags(DocData doc) {
+        String hashTags = "";
+        for (String hashTag : doc.getHashTags()) {
+            hashTags += String.format("#%s ", hashTag);
+        }
+
+        return hashTags;
+    }
+
     private void parseData(String jsonData) throws JSONException {
         mDocs = new ArrayList<>();
 
@@ -283,6 +321,11 @@ public class BubbleDisplay extends AppCompatActivity {
             data.setTitle(element.getString("title"));
             data.setDescription(element.getString("description"));
             data.setImageUri(element.getString("image"));
+
+            JSONArray hashTags = element.getJSONArray("hash_tags");
+            for (int j = 0; j < hashTags.length(); j++) {
+                data.getHashTags().add(hashTags.getString(j));
+            }
 
             if (data.getImageUri().length() > 1) {
                 mDocs.add(data);
@@ -353,8 +396,5 @@ public class BubbleDisplay extends AppCompatActivity {
                 imageProgressBar.setVisibility(View.GONE);
             }
         });
-
-
-
     }
 }

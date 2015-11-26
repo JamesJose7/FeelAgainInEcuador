@@ -1,5 +1,8 @@
 package com.jose.feelagaininecuador.model;
 
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  * Created by Jose on 11/12/2015.
  */
@@ -9,6 +12,11 @@ public class DocData {
     private String mTitle;
     private String mDescription;
     private String mImageUri;
+    private List<String> mHashTags;
+
+    public DocData() {
+        mHashTags = new ArrayList<>();
+    }
 
     public String getDescription() {
         return mDescription;
@@ -40,5 +48,13 @@ public class DocData {
 
     public static void setQueueTime(String queueTime) {
         mQueueTime = queueTime;
+    }
+
+    public List<String> getHashTags() {
+        return mHashTags;
+    }
+
+    public void setHashTags(List<String> hashTags) {
+        mHashTags = hashTags;
     }
 }
