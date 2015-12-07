@@ -11,20 +11,28 @@ import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.CardView;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
+import android.widget.AdapterView;
+import android.widget.Button;
 import android.widget.EditText;
 import android.widget.GridLayout;
 import android.widget.ImageView;
+import android.widget.ListView;
 import android.widget.ProgressBar;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import com.jose.feelagaininecuador.R;
+import com.jose.feelagaininecuador.adapters.HashTagAdapter;
 import com.jose.feelagaininecuador.alert_dialogs.AlertDialogFragment;
 import com.jose.feelagaininecuador.model.DocData;
 import com.nostra13.universalimageloader.core.DisplayImageOptions;
@@ -52,6 +60,11 @@ import java.util.concurrent.TimeUnit;
 
 public class BubbleDisplay extends AppCompatActivity {
 
+    private static final long DOUBLE_PRESS_INTERVAL = 250; // in millis
+    private long lastPressTime;
+
+    private boolean mHasDoubleClicked = false;
+
     private static final ScheduledExecutorService worker =
             Executors.newSingleThreadScheduledExecutor();
 
@@ -65,9 +78,15 @@ public class BubbleDisplay extends AppCompatActivity {
     protected ProgressBar mProgressBar;
     protected ProgressBar mBubblePB;
 
+    protected ListView mListView;
+    protected LinearLayoutManager layoutManager;
+    protected HashTagAdapter mHashTagAdapter;
+    protected RelativeLayout mBackgroundCard;
+
     private List<DocData> mDocs;
 
     private String mQueryString;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -85,6 +104,30 @@ public class BubbleDisplay extends AppCompatActivity {
         searchBar = (EditText) findViewById(R.id.search_bar);
         mProgressBar = (ProgressBar) findViewById(R.id.progress_bar);
         mSearchButton = (ImageView) findViewById(R.id.search_button);
+
+        mBackgroundCard = (RelativeLayout) findViewById(R.id.hash_card);
+        mBackgroundCard.setVisibility(View.INVISIBLE);
+
+        mListView = (ListView) findViewById(R.id.hashtag_recycler);
+        mListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
+                TextView hashButton = (TextView) view.findViewById(R.id.hashtag_text);
+                String hashtag = hashButton.getText().toString();
+                String[] hashtagA = hashtag.split("#");
+                hashtag = hashtagA[1];
+
+                getQuery();
+                String newQuery = "http://j4loxa.com/serendipity/sr/browse?q=" + mQueryString + "&wt=json&rows=100&fq=hash_tags:" + hashtag;
+
+                //Toast.makeText(BubbleDisplay.this, hashtag, Toast.LENGTH_LONG).show();
+                getContents(newQuery);
+                mBackgroundCard.setVisibility(View.INVISIBLE);
+            }
+        });
+
+        /*layoutManager = new LinearLayoutManager(this);
+        mRecyclerView.setLayoutManager(layoutManager);*/
 
         toggleRefresh();
 
@@ -218,6 +261,9 @@ public class BubbleDisplay extends AppCompatActivity {
         insertPoint.setColumnCount(column);
         insertPoint.setRowCount(rows + 1);
 
+        //Card View
+
+
         for (DocData doc : mDocs) {
             LayoutInflater vi = (LayoutInflater) getApplicationContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
             View view = vi.inflate(R.layout.bubble_template, null);
@@ -229,14 +275,35 @@ public class BubbleDisplay extends AppCompatActivity {
             bubbleImage.getLayoutParams().width = (thirdScreenWidth - 12);
 
             final String hashTags = getDocHashTags(doc);
+            final List<String> hashTagList = doc.getHashTags();
 
             bubbleImage.setOnTouchListener(new View.OnTouchListener() {
 
                 @Override
                 public boolean onTouch(View v, MotionEvent event) {
                     if (event.getAction() == MotionEvent.ACTION_DOWN) {
+
+                        // Get current time in nano seconds.
+                        long pressTime = System.currentTimeMillis();
+
+
+                        // If double click...
+                        if (pressTime - lastPressTime <= DOUBLE_PRESS_INTERVAL) {
+                            //Toast.makeText(getApplicationContext(), "Double Click Event", Toast.LENGTH_SHORT).show();
+                            //Toast.makeText(BubbleDisplay.this, hashTags, Toast.LENGTH_LONG).show();
+                            mHasDoubleClicked = true;
+
+                            //Populate card view
+                            //mListView.removeAllViews();
+
+                            HashTagAdapter hashTagAdapter = new HashTagAdapter(BubbleDisplay.this, hashTagList);
+                            mListView.setAdapter(hashTagAdapter);
+
+                            mBackgroundCard.setVisibility(View.VISIBLE);
+                        }
+                        lastPressTime = pressTime;
+
                         bubbleImage.setBorderColor(Color.parseColor("#4CAF50"));
-                        Toast.makeText(BubbleDisplay.this, hashTags, Toast.LENGTH_LONG).show();
 
                         Runnable colorTask = new Runnable() {
                             @Override
@@ -251,6 +318,7 @@ public class BubbleDisplay extends AppCompatActivity {
                     }
                     return true;
                 }
+
             });
 
             displayImage(doc.getImageUri(), bubbleImage);
@@ -396,5 +464,18 @@ public class BubbleDisplay extends AppCompatActivity {
                 imageProgressBar.setVisibility(View.GONE);
             }
         });
+    }
+/*
+    public void hashtagClick(View view) {
+        TextView hashButton = (TextView) findViewById(view.getId());
+        String hashtag = hashButton.getText().toString();
+
+        String newQuery = "http://j4loxa.com/serendipity/sr/browse?q=" + mQueryString + "&wt=json&rows=100&fq=hash_tags:" + hashtag;
+
+        getContents(newQuery);
+    }*/
+
+    public void changeVisibility(View view) {
+        mBackgroundCard.setVisibility(View.INVISIBLE);
     }
 }
