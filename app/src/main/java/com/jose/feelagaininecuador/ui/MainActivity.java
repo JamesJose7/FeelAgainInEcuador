@@ -45,6 +45,8 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
+import me.grantland.widget.AutofitHelper;
+
 public class MainActivity extends AppCompatActivity {
 
     public static final String QUERY_MAIN = "Query main";
@@ -54,6 +56,7 @@ public class MainActivity extends AppCompatActivity {
     protected EditText searchBar;
     protected ProgressBar mProgressBar;
     protected ImageView mSearchButton;
+    protected ProgressBar mDataPB;
 
     protected FloatingActionButton fab;
 
@@ -116,6 +119,7 @@ public class MainActivity extends AppCompatActivity {
                 Intent intent = new Intent(MainActivity.this, BubbleDisplay.class);
                 intent.putExtra(QUERY_MAIN, mQueryString);
                 startActivity(intent);
+                overridePendingTransition(R.anim.abc_fade_out, R.anim.abc_fade_in);
             }
         });
     }
@@ -214,9 +218,13 @@ public class MainActivity extends AppCompatActivity {
             LayoutInflater vi = (LayoutInflater) getApplicationContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
             View view = vi.inflate(R.layout.data_template, null);
 
+            mDataPB = (ProgressBar) view.findViewById(R.id.data_pb);
             TextView titleView = (TextView) view.findViewById(R.id.title);
             ImageView imageView = (ImageView) view.findViewById(R.id.image_view);
             TextView descriptionView = (TextView) view.findViewById(R.id.description);
+
+            AutofitHelper.create(titleView);
+            AutofitHelper.create(descriptionView);
 
             titleView.setText(doc.getTitle());
             displayImage(doc.getImageUri(), imageView);
@@ -269,7 +277,10 @@ public class MainActivity extends AppCompatActivity {
 
             data.setTitle(element.getString("title"));
             data.setDescription(element.getString("description"));
-            data.setImageUri(element.getString("image"));
+            if (element.getString("image").length() > 1)
+                data.setImageUri(element.getString("image"));
+            else
+                data.setImageUri("https://scontent-iad3-1.xx.fbcdn.net/hphotos-xtf1/v/t1.0-9/11025217_637827469656013_4230661887406901190_n.jpg?oh=5554db13eb5110e8e013b02e0da5c2d5&oe=571FC491");
             mDocs.add(data);
         }
 
@@ -328,7 +339,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void displayImage(String imageUri, ImageView imageView) {
-        final ProgressBar imageProgressBar = (ProgressBar) findViewById(R.id.progress_bar);
+        final ProgressBar imageProgressBar = mDataPB;
 
         ImageLoader imageLoader = ImageLoader.getInstance();
 
