@@ -25,7 +25,8 @@
         <activity
             android:name=".ui.BubbleDisplay"
             android:label="@string/title_activity_bubble_display"
-            android:theme="@style/AppTheme.NoActionBar">
+            android:theme="@style/AppTheme.NoActionBar"
+            android:windowSoftInputMode="adjustPan">
         </activity>
     </application>
 

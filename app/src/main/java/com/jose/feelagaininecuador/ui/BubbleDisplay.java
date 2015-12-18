@@ -79,12 +79,15 @@ public class BubbleDisplay extends AppCompatActivity {
     protected ProgressBar mBubblePB;
 
     protected ListView mListView;
-    protected LinearLayoutManager layoutManager;
-    protected HashTagAdapter mHashTagAdapter;
     protected RelativeLayout mBackgroundCard;
+    protected TextView mViewFullImageButton;
+    protected RelativeLayout mDisplayFullImageLayout;
+    protected ImageView mFullScreenImage;
+    protected Button mBackFromFullScreen;
 
     private List<DocData> mDocs;
 
+    private String mFullImageUri;
     private String mQueryString;
 
 
@@ -100,13 +103,45 @@ public class BubbleDisplay extends AppCompatActivity {
                 .build();
         ImageLoader.getInstance().init(config);
 
+        //Main display
         queueTime = (TextView) findViewById(R.id.queue_time);
         searchBar = (EditText) findViewById(R.id.search_bar);
         mProgressBar = (ProgressBar) findViewById(R.id.progress_bar);
         mSearchButton = (ImageView) findViewById(R.id.search_button);
 
+        //More info card
         mBackgroundCard = (RelativeLayout) findViewById(R.id.hash_card);
         mBackgroundCard.setVisibility(View.INVISIBLE);
+        //mViewFullImageButton = (TextView) findViewById(R.id.view_full_image_button);
+
+        //Display full image
+        /*mDisplayFullImageLayout = (RelativeLayout) findViewById(R.id.displayFullImageLayout);
+        mDisplayFullImageLayout.setVisibility(View.GONE);
+        mFullScreenImage = (ImageView) findViewById(R.id.imageFullScreen);
+        mBackFromFullScreen = (Button) findViewById(R.id.backArrow);
+        mBackFromFullScreen.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                mDisplayFullImageLayout.setVisibility(View.GONE);
+            }
+        });
+        mViewFullImageButton.setOnTouchListener(new View.OnTouchListener() {
+            @Override
+            public boolean onTouch(View view, MotionEvent event) {
+                if (event.getAction() == MotionEvent.ACTION_DOWN) {
+                    mViewFullImageButton.setTextColor(Color.parseColor("#05c6ff"));
+                    //Clear last image
+                    mFullScreenImage.setImageResource(android.R.color.transparent);
+                }
+                if (event.getAction() == MotionEvent.ACTION_UP) {
+                    mViewFullImageButton.setTextColor(Color.parseColor("#9905c6ff"));
+                    mDisplayFullImageLayout.setVisibility(View.VISIBLE);
+                    displayFullImage(mFullImageUri, mFullScreenImage);
+                }
+                return true;
+            }
+        });*/
+
 
         mListView = (ListView) findViewById(R.id.hashtag_recycler);
         mListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
@@ -125,9 +160,6 @@ public class BubbleDisplay extends AppCompatActivity {
                 mBackgroundCard.setVisibility(View.INVISIBLE);
             }
         });
-
-        /*layoutManager = new LinearLayoutManager(this);
-        mRecyclerView.setLayoutManager(layoutManager);*/
 
         toggleRefresh();
 
@@ -274,8 +306,9 @@ public class BubbleDisplay extends AppCompatActivity {
             bubbleImage.getLayoutParams().height = (thirdScreenWidth - 12);
             bubbleImage.getLayoutParams().width = (thirdScreenWidth - 12);
 
-            final String hashTags = getDocHashTags(doc);
+            //final String hashTags = getDocHashTags(doc);
             final List<String> hashTagList = doc.getHashTags();
+            final String imageUri = doc.getImageUri();
 
             bubbleImage.setOnTouchListener(new View.OnTouchListener() {
 
@@ -289,13 +322,14 @@ public class BubbleDisplay extends AppCompatActivity {
 
                         // If double click...
                         if (pressTime - lastPressTime <= DOUBLE_PRESS_INTERVAL) {
+                            //Set current image Uri
+                            mFullImageUri = imageUri;
+
                             //Toast.makeText(getApplicationContext(), "Double Click Event", Toast.LENGTH_SHORT).show();
                             //Toast.makeText(BubbleDisplay.this, hashTags, Toast.LENGTH_LONG).show();
                             mHasDoubleClicked = true;
 
                             //Populate card view
-                            //mListView.removeAllViews();
-
                             HashTagAdapter hashTagAdapter = new HashTagAdapter(BubbleDisplay.this, hashTagList);
                             mListView.setAdapter(hashTagAdapter);
 
@@ -443,10 +477,6 @@ public class BubbleDisplay extends AppCompatActivity {
                 .showImageOnFail(getResources().getDrawable(R.drawable.image_missing))
                 .build();
 
-
-        //download and display image from url
-        //imageLoader.displayImage(imageUri, imageView, options);
-
         imageLoader.displayImage(imageUri, imageView, options, new SimpleImageLoadingListener() {
             @Override
             public void onLoadingStarted(String imageUri, View view) {
@@ -465,14 +495,34 @@ public class BubbleDisplay extends AppCompatActivity {
             }
         });
     }
-/*
-    public void hashtagClick(View view) {
-        TextView hashButton = (TextView) findViewById(view.getId());
-        String hashtag = hashButton.getText().toString();
 
-        String newQuery = "http://j4loxa.com/serendipity/sr/browse?q=" + mQueryString + "&wt=json&rows=100&fq=hash_tags:" + hashtag;
+    /*public void displayFullImage(String imageUri, ImageView imageView) {
+        final ProgressBar imageProgressBar = (ProgressBar) findViewById(R.id.fullScreenImageProgressBar);
 
-        getContents(newQuery);
+        ImageLoader imageLoader = ImageLoader.getInstance();
+
+
+        DisplayImageOptions options = new DisplayImageOptions.Builder().cacheInMemory(true)
+                .showImageOnFail(getResources().getDrawable(R.drawable.image_missing))
+                .build();
+
+        imageLoader.displayImage(imageUri, imageView, options, new SimpleImageLoadingListener() {
+            @Override
+            public void onLoadingStarted(String imageUri, View view) {
+                imageProgressBar.setVisibility(View.VISIBLE);
+            }
+
+            @Override
+            public void onLoadingFailed(String imageUri, View view, FailReason failReason) {
+                imageProgressBar.setVisibility(View.GONE);
+
+            }
+
+            @Override
+            public void onLoadingComplete(String imageUri, View view, Bitmap loadedImage) {
+                imageProgressBar.setVisibility(View.GONE);
+            }
+        });
     }*/
 
     public void changeVisibility(View view) {
