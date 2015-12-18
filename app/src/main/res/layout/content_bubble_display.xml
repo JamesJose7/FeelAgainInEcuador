@@ -124,6 +124,7 @@
                         android:textColor="#9905c6ff"
                         android:id="@+id/view_full_image_button"
                         android:layout_weight="50"
+                        android:textStyle="bold"
                         android:gravity="right"/>
 
                 </LinearLayout>

@@ -147,13 +147,14 @@ public class BubbleDisplay extends AppCompatActivity {
                     mViewFullImageButton.setTextColor(Color.parseColor("#05c6ff"));
                     //Clear last image
                     mFullScreenImage.setImageResource(android.R.color.transparent);
-                    //Hide main container
-                    mMainContainer.setVisibility(View.INVISIBLE);
                 }
                 if (event.getAction() == MotionEvent.ACTION_UP) {
                     mViewFullImageButton.setTextColor(Color.parseColor("#9905c6ff"));
                     mDisplayFullImageLayout.setVisibility(View.VISIBLE);
                     displayFullImage(mFullImageUri, mFullScreenImage);
+
+                    //Hide main container
+                    mMainContainer.setVisibility(View.INVISIBLE);
 
                     //hide FAB
                     fab.setVisibility(View.INVISIBLE);
