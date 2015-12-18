@@ -74,6 +74,7 @@ public class BubbleDisplay extends AppCompatActivity {
     protected EditText searchBar;
     protected FloatingActionButton fab;
     protected ImageView mSearchButton;
+    protected RelativeLayout mMainContainer;
 
     protected ProgressBar mProgressBar;
     protected ProgressBar mBubblePB;
@@ -108,6 +109,7 @@ public class BubbleDisplay extends AppCompatActivity {
         searchBar = (EditText) findViewById(R.id.search_bar);
         mProgressBar = (ProgressBar) findViewById(R.id.progress_bar);
         mSearchButton = (ImageView) findViewById(R.id.search_button);
+        mMainContainer = (RelativeLayout) findViewById(R.id.main_container);
 
         //More info card
         mBackgroundCard = (RelativeLayout) findViewById(R.id.hash_card);
@@ -119,13 +121,23 @@ public class BubbleDisplay extends AppCompatActivity {
         mDisplayFullImageLayout.setVisibility(View.GONE);
         mFullScreenImage = (ImageView) findViewById(R.id.imageFullScreen);
         mBackFromFullScreen = (Button) findViewById(R.id.backArrow);
-        mBackFromFullScreen.setOnClickListener(new View.OnClickListener() {
+        mBackFromFullScreen.setOnTouchListener(new View.OnTouchListener() {
             @Override
-            public void onClick(View view) {
-                mDisplayFullImageLayout.setVisibility(View.GONE);
+            public boolean onTouch(View view, MotionEvent event) {
+                if (event.getAction() == MotionEvent.ACTION_DOWN) {
+                    mBackFromFullScreen.setBackgroundColor(Color.parseColor("#55ffffff"));
+                    //Show main container
+                    mMainContainer.setVisibility(View.VISIBLE);
+                }
+                if (event.getAction() == MotionEvent.ACTION_UP) {
+                    mBackFromFullScreen.setBackgroundColor(Color.parseColor("#00000000"));
 
-                //Show FAB
-                fab.setVisibility(View.VISIBLE);
+                    mDisplayFullImageLayout.setVisibility(View.GONE);
+
+                    //Show FAB
+                    fab.setVisibility(View.VISIBLE);
+                }
+                return true;
             }
         });
         mViewFullImageButton.setOnTouchListener(new View.OnTouchListener() {
@@ -135,6 +147,8 @@ public class BubbleDisplay extends AppCompatActivity {
                     mViewFullImageButton.setTextColor(Color.parseColor("#05c6ff"));
                     //Clear last image
                     mFullScreenImage.setImageResource(android.R.color.transparent);
+                    //Hide main container
+                    mMainContainer.setVisibility(View.INVISIBLE);
                 }
                 if (event.getAction() == MotionEvent.ACTION_UP) {
                     mViewFullImageButton.setTextColor(Color.parseColor("#9905c6ff"));
@@ -196,8 +210,6 @@ public class BubbleDisplay extends AppCompatActivity {
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                /*Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-                        .setAction("Action", null).show();*/
                 Intent intent = new Intent(BubbleDisplay.this, MainActivity.class);
                 intent.putExtra(QUERY_BUBBLE, mQueryString);
                 startActivity(intent);
@@ -280,7 +292,6 @@ public class BubbleDisplay extends AppCompatActivity {
         //Queue time message
         queueTime.setText(DocData.getQueueTime());
 
-        int counter = 0;
         int row = 0;
         int col = 0;
 
@@ -298,9 +309,6 @@ public class BubbleDisplay extends AppCompatActivity {
 
         insertPoint.setColumnCount(column);
         insertPoint.setRowCount(rows + 1);
-
-        //Card View
-
 
         for (DocData doc : mDocs) {
             LayoutInflater vi = (LayoutInflater) getApplicationContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
@@ -389,8 +397,6 @@ public class BubbleDisplay extends AppCompatActivity {
 
             insertPoint.addView(view);
 
-            counter++;
-
             //rows and columns
             if (col == 2) {
                 col = 0;
@@ -398,8 +404,6 @@ public class BubbleDisplay extends AppCompatActivity {
             } else {
                 col++;
             }
-
-
         }
     }
 
