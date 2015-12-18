@@ -112,10 +112,10 @@ public class BubbleDisplay extends AppCompatActivity {
         //More info card
         mBackgroundCard = (RelativeLayout) findViewById(R.id.hash_card);
         mBackgroundCard.setVisibility(View.INVISIBLE);
-        //mViewFullImageButton = (TextView) findViewById(R.id.view_full_image_button);
+        mViewFullImageButton = (TextView) findViewById(R.id.view_full_image_button);
 
         //Display full image
-        /*mDisplayFullImageLayout = (RelativeLayout) findViewById(R.id.displayFullImageLayout);
+        mDisplayFullImageLayout = (RelativeLayout) findViewById(R.id.displayFullImageLayout);
         mDisplayFullImageLayout.setVisibility(View.GONE);
         mFullScreenImage = (ImageView) findViewById(R.id.imageFullScreen);
         mBackFromFullScreen = (Button) findViewById(R.id.backArrow);
@@ -123,6 +123,9 @@ public class BubbleDisplay extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 mDisplayFullImageLayout.setVisibility(View.GONE);
+
+                //Show FAB
+                fab.setVisibility(View.VISIBLE);
             }
         });
         mViewFullImageButton.setOnTouchListener(new View.OnTouchListener() {
@@ -137,10 +140,13 @@ public class BubbleDisplay extends AppCompatActivity {
                     mViewFullImageButton.setTextColor(Color.parseColor("#9905c6ff"));
                     mDisplayFullImageLayout.setVisibility(View.VISIBLE);
                     displayFullImage(mFullImageUri, mFullScreenImage);
+
+                    //hide FAB
+                    fab.setVisibility(View.INVISIBLE);
                 }
                 return true;
             }
-        });*/
+        });
 
 
         mListView = (ListView) findViewById(R.id.hashtag_recycler);
@@ -496,7 +502,7 @@ public class BubbleDisplay extends AppCompatActivity {
         });
     }
 
-    /*public void displayFullImage(String imageUri, ImageView imageView) {
+    public void displayFullImage(String imageUri, ImageView imageView) {
         final ProgressBar imageProgressBar = (ProgressBar) findViewById(R.id.fullScreenImageProgressBar);
 
         ImageLoader imageLoader = ImageLoader.getInstance();
@@ -523,7 +529,7 @@ public class BubbleDisplay extends AppCompatActivity {
                 imageProgressBar.setVisibility(View.GONE);
             }
         });
-    }*/
+    }
 
     public void changeVisibility(View view) {
         mBackgroundCard.setVisibility(View.INVISIBLE);
