@@ -84,6 +84,7 @@ public class MainActivity extends AppCompatActivity {
         searchBar = (EditText) findViewById(R.id.search_bar);
         mProgressBar = (ProgressBar) findViewById(R.id.progress_bar);
         mSearchButton = (ImageView) findViewById(R.id.search_button);
+        AutofitHelper.create(queueTime);
 
         toggleRefresh();
 
@@ -285,9 +286,10 @@ public class MainActivity extends AppCompatActivity {
 
         JSONObject responseHeader = jsonObject.getJSONObject("responseHeader");
 
-        queueTime = String.format("Found %d results in %d ms.",
+        queueTime = String.format("Found %d results in %d ms. Showing %d elements.",
                 responseObj.getInt("numFound"),
-                responseHeader.getInt("QTime"));
+                responseHeader.getInt("QTime"),
+                mDocs.size());
 
         DocData.setQueueTime(queueTime);
     }

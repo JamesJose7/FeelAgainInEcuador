@@ -452,9 +452,10 @@ public class BubbleDisplay extends AppCompatActivity {
 
         JSONObject responseHeader = jsonObject.getJSONObject("responseHeader");
 
-        queueTime = String.format("Found %d results in %d ms.",
+        queueTime = String.format("Found %d results in %d ms. Showing %d elements.",
                 responseObj.getInt("numFound"),
-                responseHeader.getInt("QTime"));
+                responseHeader.getInt("QTime"),
+                mDocs.size());
 
         DocData.setQueueTime(queueTime);
     }
