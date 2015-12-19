@@ -2,6 +2,13 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     tools:context=".ui.MainActivity">
+
+    <item
+        android:id="@+id/action_change_column_count"
+        android:icon="@drawable/ic_view_agenda_white_24dp"
+        android:title="ChangeColumns"
+        app:showAsAction="ifRoom"/>
+
     <item
         android:id="@+id/action_settings"
         android:orderInCategory="100"

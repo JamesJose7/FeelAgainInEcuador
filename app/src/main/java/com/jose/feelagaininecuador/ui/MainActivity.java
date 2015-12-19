@@ -51,6 +51,10 @@ public class MainActivity extends AppCompatActivity {
 
     public static final String QUERY_MAIN = "Query main";
     public static boolean wasSearchedMain = false;
+    private final int ONE_COLUMN = 1;
+    private final int TWO_COLUMNS = 2;
+
+    private Menu mMenu;
 
     protected TextView queueTime;
     protected EditText searchBar;
@@ -172,7 +176,7 @@ public class MainActivity extends AppCompatActivity {
                             runOnUiThread(new Runnable() {
                                 @Override
                                 public void run() {
-                                    updateDisplay();
+                                    updateDisplay(TWO_COLUMNS);
                                 }
                             });
                         } else {
@@ -190,24 +194,23 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    private void updateDisplay() {
+    private void updateDisplay(int columnCount) {
         //Queue time message
         queueTime.setText(DocData.getQueueTime());
 
-        int counter = 0;
         int row = 0;
         int col = 0;
 
         int total = mDocs.size();
-        int column = 2;
+        int column = columnCount;
         int rows = total / column;
 
         Point size = new Point();
         getWindowManager().getDefaultDisplay().getSize(size);
         int screenWidth = size.x;
         int halfScreenWidth = (int) (screenWidth * 0.5 - 8);
+        screenWidth -= 8;
 
-        //ViewGroup insertPoint = (ViewGroup) findViewById(R.id.items_grid);
         GridLayout insertPoint = (GridLayout) findViewById(R.id.items_grid);
         insertPoint.removeAllViews();
 
@@ -230,14 +233,14 @@ public class MainActivity extends AppCompatActivity {
             displayImage(doc.getImageUri(), imageView);
             descriptionView.setText(doc.getDescription());
 
-
             //TEST
             GridLayout.LayoutParams params = new GridLayout.LayoutParams();
             params.height = GridLayout.LayoutParams.WRAP_CONTENT;
-            params.width = halfScreenWidth;
-            params.rightMargin = 2;
-            params.leftMargin = 2;
+            params.width = (column == TWO_COLUMNS ? halfScreenWidth : screenWidth);
+            params.rightMargin = 4;
+            params.leftMargin = 4;
             params.topMargin = 5;
+            params.bottomMargin = 5;
             params.setGravity(Gravity.CENTER);
             params.columnSpec = GridLayout.spec(col);
             params.rowSpec = GridLayout.spec(row);
@@ -245,20 +248,13 @@ public class MainActivity extends AppCompatActivity {
 
             insertPoint.addView(view);
 
-            //insertPoint.addView(view, counter, new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
-            //insertPoint.addView(view, counter, new GridLayout.LayoutParams(GridLayout.spec(row), GridLayout.spec(col)));
-
-            counter++;
-
             //rows and columns
-            if (col == 1) {
+            if (col == (column - 1)) {
                 col = 0;
                 row++;
             } else {
                 col++;
             }
-
-
         }
     }
 
@@ -319,23 +315,45 @@ public class MainActivity extends AppCompatActivity {
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
+        mMenu = menu;
         getMenuInflater().inflate(R.menu.menu_main, menu);
         return true;
     }
+
+    private boolean showsTwoColumns = true;
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         // Handle action bar item clicks here. The action bar will
         // automatically handle clicks on the Home/Up button, so long
         // as you specify a parent activity in AndroidManifest.xml.
-        int id = item.getItemId();
+        switch(item.getItemId()) {
+            case R.id.action_settings:
+                return true;
 
-        //noinspection SimplifiableIfStatement
-        if (id == R.id.action_settings) {
-            return true;
+            case R.id.action_change_column_count:
+                //Get item
+                MenuItem columnItem = mMenu.getItem(0);
+
+                if (showsTwoColumns) {
+                    //Change to 1 column
+                    showsTwoColumns = false;
+
+                    //Toast.makeText(MainActivity.this, "Changed to one column", Toast.LENGTH_SHORT).show();
+                    updateDisplay(ONE_COLUMN);
+                    columnItem.setIcon(R.drawable.ic_view_column_white_24dp);
+                } else {
+                    //Change to 2 column
+                    showsTwoColumns = true;
+
+                    //Toast.makeText(MainActivity.this, "Changed to two columns", Toast.LENGTH_SHORT).show();
+                    updateDisplay(TWO_COLUMNS);
+                    columnItem.setIcon(R.drawable.ic_view_agenda_white_24dp);
+                }
+
+            default:
+                return super.onOptionsItemSelected(item);
         }
-
-        return super.onOptionsItemSelected(item);
     }
 
     public void displayImage(String imageUri, ImageView imageView) {

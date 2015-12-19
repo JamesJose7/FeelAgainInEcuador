@@ -375,7 +375,7 @@ public class BubbleDisplay extends AppCompatActivity {
             //TEST
             GridLayout.LayoutParams params = new GridLayout.LayoutParams();
             params.height = GridLayout.LayoutParams.WRAP_CONTENT;
-            params.width = thirdScreenWidth;
+            params.width = thirdScreenWidth - 12;
             switch (col) {
                 case 1:
                     params.leftMargin = 6;
