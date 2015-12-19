@@ -303,7 +303,7 @@ public class BubbleDisplay extends AppCompatActivity {
         Point size = new Point();
         getWindowManager().getDefaultDisplay().getSize(size);
         int screenWidth = size.x;
-        int thirdScreenWidth = (int) (screenWidth * 0.33);
+        int thirdScreenWidth = (int) (screenWidth * 0.33 - 7);
 
         GridLayout insertPoint = (GridLayout) findViewById(R.id.bubbleGrid);
         insertPoint.removeAllViews();
@@ -318,8 +318,8 @@ public class BubbleDisplay extends AppCompatActivity {
             final CircularImageView bubbleImage = (CircularImageView) view.findViewById(R.id.bubble_image);
             mBubblePB = (ProgressBar) view.findViewById(R.id.bubble_pb);
 
-            bubbleImage.getLayoutParams().height = (thirdScreenWidth - 12);
-            bubbleImage.getLayoutParams().width = (thirdScreenWidth - 12);
+            bubbleImage.getLayoutParams().height = thirdScreenWidth;
+            bubbleImage.getLayoutParams().width = thirdScreenWidth;
 
             //final String hashTags = getDocHashTags(doc);
             final List<String> hashTagList = doc.getHashTags();
@@ -375,8 +375,8 @@ public class BubbleDisplay extends AppCompatActivity {
             //TEST
             GridLayout.LayoutParams params = new GridLayout.LayoutParams();
             params.height = GridLayout.LayoutParams.WRAP_CONTENT;
-            params.width = thirdScreenWidth - 12;
-            switch (col) {
+            params.width = thirdScreenWidth;
+            /*switch (col) {
                 case 1:
                     params.leftMargin = 6;
                     break;
@@ -388,7 +388,9 @@ public class BubbleDisplay extends AppCompatActivity {
                     params.rightMargin = 6;
                     break;
                 default:
-            }
+            }*/
+            params.leftMargin = 4;
+            params.rightMargin = 4;
             params.topMargin = 3;
             params.bottomMargin = 3;
             params.setGravity(Gravity.CENTER);
