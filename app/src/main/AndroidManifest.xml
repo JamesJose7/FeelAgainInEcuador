@@ -15,7 +15,8 @@
         <activity
             android:name=".ui.MainActivity"
             android:label="@string/app_title"
-            android:theme="@style/AppTheme.NoActionBar">
+            android:theme="@style/AppTheme.NoActionBar"
+            android:windowSoftInputMode="stateHidden">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN"/>
 
@@ -26,7 +27,7 @@
             android:name=".ui.BubbleDisplay"
             android:label="@string/app_title"
             android:theme="@style/AppTheme.NoActionBar"
-            android:windowSoftInputMode="adjustPan">
+            android:windowSoftInputMode="stateHidden">
         </activity>
     </application>
 
