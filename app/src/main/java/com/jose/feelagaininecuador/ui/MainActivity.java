@@ -342,14 +342,25 @@ public class MainActivity extends AppCompatActivity {
                     showsTwoColumns = false;
 
                     //Toast.makeText(MainActivity.this, "Changed to one column", Toast.LENGTH_SHORT).show();
-                    updateDisplay(ONE_COLUMN);
+                    runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            updateDisplay(ONE_COLUMN);
+                        }
+                    });
                     columnItem.setIcon(R.drawable.ic_view_column_white_24dp);
                 } else {
                     //Change to 2 column
                     showsTwoColumns = true;
 
                     //Toast.makeText(MainActivity.this, "Changed to two columns", Toast.LENGTH_SHORT).show();
-                    updateDisplay(TWO_COLUMNS);
+                    runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            updateDisplay(TWO_COLUMNS);
+                        }
+                    });
+
                     columnItem.setIcon(R.drawable.ic_view_agenda_white_24dp);
                 }
 
