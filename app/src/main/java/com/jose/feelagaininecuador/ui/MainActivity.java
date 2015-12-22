@@ -230,7 +230,7 @@ public class MainActivity extends AppCompatActivity {
             AutofitHelper.create(titleView);
             AutofitHelper.create(descriptionView);
 
-            titleView.setText(doc.getTitle());
+            titleView.setText(filterTwitterText(doc.getTitle()));
             displayImage(doc.getImageUri(), imageView);
             descriptionView.setText(doc.getDescription());
 
@@ -257,6 +257,15 @@ public class MainActivity extends AppCompatActivity {
                 col++;
             }
         }
+    }
+
+    private String filterTwitterText(String title) {
+        if (title.contains("en Twitter:")) {
+            String[] splitTitle = title.split("en Twitter:");
+            title = splitTitle[0] + "en Twitter";
+            return title;
+        }
+        return title;
     }
 
     private void parseData(String jsonData) throws JSONException {
