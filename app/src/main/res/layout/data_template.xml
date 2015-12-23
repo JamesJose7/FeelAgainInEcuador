@@ -50,4 +50,17 @@
         tools:background="#77ffffff"
         android:maxLines="2"/>
 
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/view_original"
+        android:text="View Original"
+        android:textSize="12sp"
+        android:padding="3dp"
+        android:gravity="center"
+        android:layout_centerHorizontal="true"
+        android:textColor="#99111111"
+        android:background="#44aaaaaa"
+        android:layout_below="@id/description"/>
+
 </RelativeLayout>

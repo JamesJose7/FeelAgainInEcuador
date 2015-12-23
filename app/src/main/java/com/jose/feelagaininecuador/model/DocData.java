@@ -12,6 +12,7 @@ public class DocData {
     private String mTitle;
     private String mDescription;
     private String mImageUri;
+    private String mUrl;
     private List<String> mHashTags;
 
     public DocData() {
@@ -48,6 +49,14 @@ public class DocData {
 
     public static void setQueueTime(String queueTime) {
         mQueueTime = queueTime;
+    }
+
+    public String getUrl() {
+        return mUrl;
+    }
+
+    public void setUrl(String url) {
+        mUrl = url;
     }
 
     public List<String> getHashTags() {

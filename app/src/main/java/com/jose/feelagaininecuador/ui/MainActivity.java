@@ -2,11 +2,14 @@ package com.jose.feelagaininecuador.ui;
 
 import android.content.Context;
 import android.content.Intent;
+import android.content.pm.PackageManager;
+import android.content.pm.ResolveInfo;
 import android.graphics.Bitmap;
 import android.graphics.Point;
 import android.graphics.drawable.Drawable;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.AppCompatActivity;
@@ -226,6 +229,7 @@ public class MainActivity extends AppCompatActivity {
             TextView titleView = (TextView) view.findViewById(R.id.title);
             ImageView imageView = (ImageView) view.findViewById(R.id.image_view);
             TextView descriptionView = (TextView) view.findViewById(R.id.description);
+            TextView viewOriginalView = (TextView) view.findViewById(R.id.view_original);
 
             AutofitHelper.create(titleView);
             AutofitHelper.create(descriptionView);
@@ -233,6 +237,32 @@ public class MainActivity extends AppCompatActivity {
             titleView.setText(filterTwitterText(doc.getTitle()));
             displayImage(doc.getImageUri(), imageView);
             descriptionView.setText(doc.getDescription());
+
+            //Launch proper application with url
+            final String url = doc.getUrl();
+            viewOriginalView.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    /*Intent intent = new Intent(Intent.ACTION_VIEW);
+                    intent.setData(Uri.parse(url));
+                    startActivity(intent);*/
+
+                    Uri webpage = Uri.parse(url);
+                    Intent webIntent = new Intent(Intent.ACTION_VIEW, webpage);
+
+                    // Verify it resolves
+                    PackageManager packageManager = getPackageManager();
+                    List<ResolveInfo> activities = packageManager.queryIntentActivities(webIntent, 0);
+                    boolean isIntentSafe = activities.size() > 0;
+
+                    // Start an activity if it's safe
+                    if (isIntentSafe) {
+                        startActivity(webIntent);
+                    } else {
+                        Toast.makeText(MainActivity.this, "Didn't work", Toast.LENGTH_SHORT).show();
+                    }
+                }
+            });
 
             //TEST
             GridLayout.LayoutParams params = new GridLayout.LayoutParams();
@@ -283,6 +313,7 @@ public class MainActivity extends AppCompatActivity {
 
             data.setTitle(element.getString("title"));
             data.setDescription(element.getString("description"));
+            data.setUrl(element.getString("url"));
             if (element.getString("image").length() > 1)
                 data.setImageUri(element.getString("image"));
             else
